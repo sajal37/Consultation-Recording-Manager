@@ -43,13 +43,17 @@ export function ConsultationDetail({ id, onBack }: Props) {
   }
 
   if (loading) {
-    return <p className="mx-auto max-w-3xl px-4 py-8 text-sm text-slate-500">Loading…</p>;
+    return (
+      <p className="mx-auto max-w-3xl px-5 py-10 font-mono text-sm text-ink-faint">
+        Pulling the file…
+      </p>
+    );
   }
   if (error || !data) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
-        <p className="text-sm text-red-600">{error ?? 'Not found.'}</p>
-        <button onClick={onBack} className="mt-3 text-sm text-brand-600 hover:underline">
+      <div className="mx-auto max-w-3xl px-5 py-10">
+        <p className="text-sm text-clay-600">{error ?? 'Not found.'}</p>
+        <button onClick={onBack} className="btn-ghost mt-3 text-sm">
           ← Back
         </button>
       </div>
@@ -57,62 +61,76 @@ export function ConsultationDetail({ id, onBack }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <button onClick={onBack} className="text-sm text-slate-500 hover:text-slate-700">
-        ← All consultations
+    <div className="mx-auto max-w-3xl px-5 py-10">
+      {/* breadcrumb */}
+      <button
+        onClick={onBack}
+        className="font-mono text-xs text-ink-faint transition hover:text-ink"
+      >
+        ← casebook
       </button>
 
-      <div className="mt-3 flex items-start justify-between gap-4">
+      {/* header */}
+      <div className="mt-4 flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-slate-900">{data.clientName}</h1>
+          <p className="label-kicker">{data.consultationType}</p>
+          <div className="mt-1 flex items-center gap-3">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-ink">
+              {data.clientName}
+            </h1>
             <StatusBadge status={data.status} />
           </div>
-          <p className="mt-1 text-sm text-slate-500">
-            {data.consultationType}
-            {data.scheduledAt && ` · ${formatDateTime(data.scheduledAt)}`}
-          </p>
+          {data.scheduledAt && (
+            <p className="mt-1 font-mono text-xs text-ink-faint">
+              {formatDateTime(data.scheduledAt)}
+            </p>
+          )}
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowEdit(true)}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
+        <div className="flex shrink-0 gap-2">
+          <button onClick={() => setShowEdit(true)} className="btn-outline text-sm">
             Edit
           </button>
           <button
             onClick={handleDelete}
-            className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+            className="font-mono text-xs text-ink-faint hover:text-clay-600"
           >
-            Delete
+            delete
           </button>
         </div>
       </div>
 
+      {/* notes block */}
       {data.notes && (
-        <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            Notes
-          </p>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{data.notes}</p>
+        <div className="sheet mt-5 p-4">
+          <p className="label-kicker">Notes</p>
+          <p className="mt-1.5 whitespace-pre-wrap text-sm text-ink-soft">{data.notes}</p>
         </div>
       )}
 
+      {/* recorder */}
       <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">Capture a recording</h2>
+        <p className="label-kicker mb-3">Capture</p>
         <RecorderPanel consultationId={data.id} onUploaded={load} />
       </section>
 
-      <section className="mt-8">
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">
-          Recordings ({data.recordings.length})
-        </h2>
+      {/* recordings list */}
+      <section className="mt-10">
+        <div className="flex items-baseline gap-2 border-b border-line pb-3">
+          <h2 className="font-display text-xl font-medium text-ink">Recordings</h2>
+          <span className="font-mono text-xs text-ink-faint">
+            {data.recordings.length} file{data.recordings.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
         {data.recordings.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
-            No recordings yet — record or upload one above.
-          </p>
+          <div className="mt-5 rounded-lg border border-dashed border-line px-6 py-10 text-center">
+            <p className="font-display text-ink-soft">Nothing here yet.</p>
+            <p className="mt-1 text-sm text-ink-faint">
+              Record or upload a file above to get started.
+            </p>
+          </div>
         ) : (
-          <div className="space-y-3">
+          <div className="mt-4 space-y-3">
             {data.recordings.map((r) => (
               <RecordingCard key={r.id} recording={r} onChanged={load} />
             ))}

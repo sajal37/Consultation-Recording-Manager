@@ -42,33 +42,39 @@ export function ConsultationsList({ onOpen }: { onOpen: (id: string) => void }) 
   }, [search, status]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto max-w-4xl px-5 py-10">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Consultations</h1>
-          <p className="text-sm text-slate-500">
-            Record, transcribe and manage client sessions.
+          <p className="label-kicker">The casebook</p>
+          <h1 className="mt-1 font-display text-4xl font-semibold tracking-tight text-ink">
+            Consultations
+          </h1>
+          <p className="mt-2 max-w-md text-sm text-ink-soft">
+            Every session, recorded and written up. Open one to record audio or
+            read back a transcript.
           </p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-        >
-          + New consultation
+        <button onClick={() => setShowCreate(true)} className="btn-clay shrink-0">
+          New consultation
         </button>
       </div>
 
-      <div className="mt-6 flex flex-wrap gap-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by client, type or notes…"
-          className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-        />
+      <div className="mt-8 flex flex-wrap items-center gap-3">
+        <div className="relative flex-1">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs text-ink-faint">
+            ⌕
+          </span>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search a client, type or note…"
+            className="field mt-0 pl-8"
+          />
+        </div>
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="field mt-0 w-auto"
         >
           {STATUS_FILTERS.map((f) => (
             <option key={f.value} value={f.value}>
@@ -78,43 +84,73 @@ export function ConsultationsList({ onOpen }: { onOpen: (id: string) => void }) 
         </select>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-7">
         {loading ? (
-          <p className="text-sm text-slate-500">Loading…</p>
+          <p className="font-mono text-sm text-ink-faint">Opening the casebook…</p>
         ) : error ? (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-clay-600">{error}</p>
         ) : items.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 p-10 text-center">
-            <p className="text-slate-500">No consultations yet.</p>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="mt-3 text-sm font-medium text-brand-600 hover:underline"
-            >
-              Create your first one
-            </button>
+          <div className="sheet flex flex-col items-center px-6 py-14 text-center">
+            <p className="font-display text-lg text-ink">Nothing filed yet.</p>
+            <p className="mt-1 text-sm text-ink-soft">
+              {search || status
+                ? 'Nothing matches that. Try clearing the filters.'
+                : 'Start a consultation and the recordings will live here.'}
+            </p>
+            {!search && !status && (
+              <button onClick={() => setShowCreate(true)} className="btn-clay mt-5">
+                Open the first one
+              </button>
+            )}
           </div>
         ) : (
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {items.map((c) => (
-              <li key={c.id}>
-                <button
-                  onClick={() => onOpen(c.id)}
-                  className="flex w-full flex-col rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-brand-400 hover:shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-900">{c.clientName}</span>
-                    <StatusBadge status={c.status as ConsultationStatus} />
-                  </div>
-                  <span className="mt-1 text-sm text-slate-500">{c.consultationType}</span>
-                  <span className="mt-3 text-xs text-slate-400">
-                    {c.scheduledAt
-                      ? `Scheduled ${formatDateTime(c.scheduledAt)}`
-                      : `Created ${formatDate(c.createdAt)}`}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <>
+            <p className="label-kicker mb-3">
+              {items.length} {items.length === 1 ? 'entry' : 'entries'}
+            </p>
+            <ul className="space-y-2.5">
+              {items.map((c) => (
+                <li key={c.id}>
+                  <button
+                    onClick={() => onOpen(c.id)}
+                    className="group sheet flex w-full items-center gap-4 overflow-hidden p-0 text-left transition hover:shadow-lift"
+                  >
+                    {/* clay spine, like the edge of a filed folder */}
+                    <span className="h-full w-1.5 shrink-0 self-stretch bg-clay-200 transition group-hover:bg-clay-400" />
+                    <div className="flex flex-1 items-center gap-4 py-4 pr-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2.5">
+                          <span className="truncate font-display text-lg font-medium text-ink">
+                            {c.clientName}
+                          </span>
+                          <StatusBadge status={c.status as ConsultationStatus} />
+                        </div>
+                        <span className="mt-0.5 block text-sm text-ink-soft">
+                          {c.consultationType}
+                        </span>
+                      </div>
+                      <span className="hidden shrink-0 text-right font-mono text-[11px] leading-relaxed text-ink-faint sm:block">
+                        {c.scheduledAt ? (
+                          <>
+                            <span className="block">scheduled</span>
+                            {formatDateTime(c.scheduledAt)}
+                          </>
+                        ) : (
+                          <>
+                            <span className="block">opened</span>
+                            {formatDate(c.createdAt)}
+                          </>
+                        )}
+                      </span>
+                      <span className="font-mono text-ink-faint transition group-hover:translate-x-0.5 group-hover:text-clay-500">
+                        →
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </div>
 

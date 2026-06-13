@@ -64,15 +64,14 @@ export function ConsultationForm({ initial, submitLabel, onSubmit, onCancel }: P
     }
   }
 
-  const field = 'mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm ' +
-    'focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500';
+  const lbl = 'label-kicker';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="text-sm font-medium text-slate-700">Client name</label>
+        <label className={lbl}>Client name</label>
         <input
-          className={field}
+          className="field"
           value={clientName}
           onChange={(e) => setClientName(e.target.value)}
           placeholder="e.g. Jordan Patel"
@@ -82,18 +81,18 @@ export function ConsultationForm({ initial, submitLabel, onSubmit, onCancel }: P
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-sm font-medium text-slate-700">Type</label>
+          <label className={lbl}>Type</label>
           <input
-            className={field}
+            className="field"
             value={consultationType}
             onChange={(e) => setConsultationType(e.target.value)}
             placeholder="General"
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Status</label>
+          <label className={lbl}>Status</label>
           <select
-            className={field}
+            className="field"
             value={status}
             onChange={(e) => setStatus(e.target.value as ConsultationStatus)}
           >
@@ -107,19 +106,19 @@ export function ConsultationForm({ initial, submitLabel, onSubmit, onCancel }: P
       </div>
 
       <div>
-        <label className="text-sm font-medium text-slate-700">Scheduled at</label>
+        <label className={lbl}>Scheduled at</label>
         <input
           type="datetime-local"
-          className={field}
+          className="field"
           value={scheduledLocal}
           onChange={(e) => setScheduledLocal(e.target.value)}
         />
       </div>
 
       <div>
-        <label className="text-sm font-medium text-slate-700">Notes</label>
+        <label className={lbl}>Notes</label>
         <textarea
-          className={field}
+          className="field"
           rows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -127,21 +126,13 @@ export function ConsultationForm({ initial, submitLabel, onSubmit, onCancel }: P
         />
       </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-clay-600">{error}</p>}
 
       <div className="flex justify-end gap-2 pt-1">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
-        >
+        <button type="button" onClick={onCancel} className="btn-ghost">
           Cancel
         </button>
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-        >
+        <button type="submit" disabled={saving} className="btn-clay disabled:opacity-50">
           {saving ? 'Saving…' : submitLabel}
         </button>
       </div>

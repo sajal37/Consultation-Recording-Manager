@@ -3,26 +3,15 @@ import path from 'node:path';
 import { config } from '../config.js';
 import type { Consultation, Recording } from '../types.js';
 
-/**
- * Tiny zero-dependency, pure-JS persistence layer.
- *
- * Why not SQLite? A native module (better-sqlite3) requires a C/C++ build
- * toolchain that isn't present on every machine, which breaks the
- * "clone and run anywhere" promise this challenge values. A JSON-file store
- * keeps persistence real and inspectable with zero native dependencies and
- * zero setup. The repository API below is intentionally storage-shaped so it
- * could be swapped for SQLite/Postgres later without touching the routes.
- *
- * Writes are synchronous and atomic (write-temp-then-rename) which is correct
- * and more than sufficient for a single-process app at this scale.
- */
+// The "database" is a JSON file. See PROJECT_NOTES for why it isn't SQLite.
+// Whole thing lives in memory; we write it back to disk on every change.
+// Writes go to a temp file first and then get renamed over the real one, so a
+// crash halfway through can't leave a half-written file behind.
 
 interface DbShape {
   consultations: Consultation[];
   recordings: Recording[];
 }
-
-const EMPTY: DbShape = { consultations: [], recordings: [] };
 
 function ensureDirs(): void {
   fs.mkdirSync(config.recordingsDir, { recursive: true });
@@ -31,18 +20,17 @@ function ensureDirs(): void {
 function load(): DbShape {
   ensureDirs();
   try {
-    const raw = fs.readFileSync(config.dbPath, 'utf8');
-    const parsed = JSON.parse(raw) as Partial<DbShape>;
+    const parsed = JSON.parse(fs.readFileSync(config.dbPath, 'utf8')) as Partial<DbShape>;
     return {
       consultations: parsed.consultations ?? [],
       recordings: parsed.recordings ?? [],
     };
   } catch {
-    return structuredClone(EMPTY);
+    // No file yet, or it's garbage — start clean.
+    return { consultations: [], recordings: [] };
   }
 }
 
-/** In-memory state, hydrated once at startup. */
 const state: DbShape = load();
 
 function persist(): void {
@@ -52,14 +40,12 @@ function persist(): void {
   fs.renameSync(tmp, config.dbPath);
 }
 
-/** Exposed so the repository can read/mutate then persist. */
-export const store = {
-  state,
-  persist,
-};
+export const store = { state, persist };
 
-/** No-op kept for API parity with a migrating DB; ensures dirs + file exist. */
+// Called once at boot. There's no schema to migrate, but it makes sure the
+// data dir and an initial file exist so the first write doesn't fail.
 export function migrate(): void {
   ensureDirs();
   if (!fs.existsSync(config.dbPath)) persist();
 }
+

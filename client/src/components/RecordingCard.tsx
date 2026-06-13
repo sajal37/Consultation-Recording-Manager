@@ -15,6 +15,13 @@ const STATUS_LABEL: Record<Recording['transcriptStatus'], string> = {
   failed: 'Transcription failed',
 };
 
+const STATUS_CLASS: Record<Recording['transcriptStatus'], string> = {
+  none: 'border-line text-ink-faint',
+  processing: 'border-clay-200 bg-clay-50 text-clay-600',
+  done: 'border-pine-100 bg-pine-50 text-pine-600',
+  failed: 'border-clay-200 bg-clay-50 text-clay-700',
+};
+
 export function RecordingCard({ recording, onChanged }: Props) {
   const [live, setLive] = useState<Recording>(recording);
   const [deleting, setDeleting] = useState(false);
@@ -61,26 +68,19 @@ export function RecordingCard({ recording, onChanged }: Props) {
     setLive({ ...live, transcriptStatus: 'processing' });
   }
 
-  const badgeColor =
-    live.transcriptStatus === 'done'
-      ? 'bg-green-100 text-green-700'
-      : live.transcriptStatus === 'processing'
-        ? 'bg-amber-100 text-amber-700'
-        : live.transcriptStatus === 'failed'
-          ? 'bg-red-100 text-red-700'
-          : 'bg-slate-100 text-slate-600';
-
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
+    <div className="sheet p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="truncate font-medium text-slate-800">{live.originalName}</p>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <p className="truncate font-display font-medium text-ink">{live.originalName}</p>
+          <p className="mt-0.5 font-mono text-[11px] text-ink-faint">
             {formatDateTime(live.createdAt)} · {formatBytes(live.sizeBytes)} ·{' '}
             {formatDuration(live.durationSeconds)}
           </p>
         </div>
-        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeColor}`}>
+        <span
+          className={`shrink-0 rounded border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${STATUS_CLASS[live.transcriptStatus]}`}
+        >
           {STATUS_LABEL[live.transcriptStatus]}
         </span>
       </div>
@@ -88,21 +88,19 @@ export function RecordingCard({ recording, onChanged }: Props) {
       <audio controls src={api.streamUrl(live.id)} className="mt-3 w-full" />
 
       {(live.summary || live.transcript) && (
-        <div className="mt-3 space-y-3">
+        <div className="mt-4 space-y-3">
           {live.summary && (
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Summary
-              </p>
-              <p className="mt-1 text-sm text-slate-700">{live.summary}</p>
+              <p className="label-kicker">Summary</p>
+              <p className="mt-1 text-sm text-ink-soft">{live.summary}</p>
             </div>
           )}
           {live.transcript && (
             <details className="group">
-              <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-slate-400 hover:text-slate-600">
+              <summary className="label-kicker cursor-pointer hover:text-ink">
                 Transcript
               </summary>
-              <pre className="mt-1 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
+              <pre className="mt-2 whitespace-pre-wrap rounded-md border border-line bg-paper/60 p-3 font-mono text-xs text-ink-soft">
                 {live.transcript}
               </pre>
             </details>
@@ -110,28 +108,25 @@ export function RecordingCard({ recording, onChanged }: Props) {
         </div>
       )}
 
-      <div className="mt-3 flex gap-3 text-sm">
+      <div className="mt-4 flex items-center gap-2">
         <a
           href={api.streamUrl(live.id)}
           download={live.originalName}
-          className="font-medium text-brand-600 hover:underline"
+          className="btn-outline text-xs"
         >
           Download
         </a>
         {live.transcriptStatus !== 'processing' && (
-          <button
-            onClick={handleRetranscribe}
-            className="font-medium text-slate-600 hover:underline"
-          >
+          <button onClick={handleRetranscribe} className="btn-ghost text-xs">
             {live.transcriptStatus === 'done' ? 'Re-transcribe' : 'Transcribe'}
           </button>
         )}
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="ml-auto font-medium text-red-600 hover:underline disabled:opacity-50"
+          className="ml-auto font-mono text-xs text-ink-faint hover:text-clay-600 disabled:opacity-40"
         >
-          {deleting ? 'Deleting…' : 'Delete'}
+          {deleting ? 'removing…' : 'delete'}
         </button>
       </div>
     </div>

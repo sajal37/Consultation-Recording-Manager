@@ -53,40 +53,48 @@ export function RecorderPanel({ consultationId, onUploaded }: Props) {
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Record controls */}
+    <div className="sheet p-5">
+      <div className="flex flex-wrap items-center gap-4">
+        {/* the big round record/stop control */}
         {rec.state !== 'recording' ? (
           <button
             onClick={rec.start}
             disabled={busy}
-            className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            aria-label="Start recording"
+            className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-clay-600 text-clay-50 transition hover:bg-clay-700 disabled:opacity-50"
           >
-            <span className="h-2.5 w-2.5 rounded-full bg-white" />
-            Record
+            <span className="h-4 w-4 rounded-full bg-clay-50" />
           </button>
         ) : (
           <button
             onClick={rec.stop}
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900"
+            aria-label="Stop recording"
+            className="grid h-14 w-14 shrink-0 animate-pulse-ring place-items-center rounded-full bg-clay-600 text-clay-50 transition hover:bg-clay-700"
           >
-            <span className="h-2.5 w-2.5 bg-white" />
-            Stop
+            <span className="h-4 w-4 rounded-[3px] bg-clay-50" />
           </button>
         )}
 
-        {rec.state === 'recording' && (
-          <span className="flex items-center gap-2 text-sm text-red-600">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-red-600" />
-            Recording… {formatDuration(rec.seconds)}
-          </span>
-        )}
+        <div className="flex-1">
+          {rec.state === 'recording' ? (
+            <>
+              <p className="font-mono text-2xl tabular-nums text-clay-600">
+                {formatDuration(rec.seconds)}
+              </p>
+              <p className="label-kicker mt-0.5 text-clay-500">● recording — tap to stop</p>
+            </>
+          ) : (
+            <>
+              <p className="font-display text-lg text-ink">Capture this session</p>
+              <p className="text-sm text-ink-soft">
+                Hit record, or bring your own file.
+              </p>
+            </>
+          )}
+        </div>
 
-        <div className="h-6 w-px bg-slate-200" />
-
-        {/* Upload control */}
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-          Upload file
+        <label className="btn-outline cursor-pointer shrink-0">
+          Upload a file
           <input
             ref={fileInputRef}
             type="file"
@@ -100,33 +108,22 @@ export function RecorderPanel({ consultationId, onUploaded }: Props) {
 
       {/* Preview + save the just-recorded clip */}
       {rec.state === 'stopped' && rec.blob && (
-        <div className="mt-4 space-y-3 rounded-lg bg-slate-50 p-3">
-          <audio
-            controls
-            src={URL.createObjectURL(rec.blob)}
-            className="w-full"
-          />
+        <div className="mt-5 space-y-3 rounded-md border border-line bg-paper/50 p-4">
+          <p className="label-kicker">Take a listen before you file it</p>
+          <audio controls src={URL.createObjectURL(rec.blob)} />
           <div className="flex gap-2">
-            <button
-              onClick={saveRecorded}
-              disabled={busy}
-              className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-            >
-              {busy ? 'Saving…' : 'Save recording'}
+            <button onClick={saveRecorded} disabled={busy} className="btn-clay disabled:opacity-50">
+              {busy ? 'Filing…' : 'Save to this consultation'}
             </button>
-            <button
-              onClick={rec.reset}
-              disabled={busy}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
-            >
+            <button onClick={rec.reset} disabled={busy} className="btn-ghost">
               Discard
             </button>
           </div>
         </div>
       )}
 
-      {rec.error && <p className="mt-3 text-sm text-red-600">{rec.error}</p>}
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {rec.error && <p className="mt-3 text-sm text-clay-600">{rec.error}</p>}
+      {error && <p className="mt-3 text-sm text-clay-600">{error}</p>}
     </div>
   );
 }
