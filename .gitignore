@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+*.local
+
+# Database & uploaded recordings (runtime data)
+server/data/db.json
+server/data/*.tmp
+server/data/.*.tmp
+server/data/recordings/*
+!server/data/recordings/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
