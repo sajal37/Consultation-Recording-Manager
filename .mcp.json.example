@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "video": {
+      "command": "node",
+      "args": ["/path/to/mcp-video-server/dist/server.js"],
+      "env": {
+        "VIDEO_OUTPUT_DIR": "/path/to/this/repo/demo",
+        "FFMPEG_PATH": "/usr/local/bin/ffmpeg",
+        "FFPROBE_PATH": "/usr/local/bin/ffprobe"
+      }
+    },
+    "ffmpeg": {
+      "command": "npx",
+      "args": ["-y", "mcp-ffmpeg"]
+    }
+  }
+}

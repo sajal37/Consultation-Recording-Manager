@@ -22,6 +22,12 @@ server/data/recordings/*
 *.log
 npm-debug.log*
 
+# MCP server config (machine-specific paths — see .mcp.json.example)
+.mcp.json
+
+# Demo video output
+demo/
+
 # Editor / OS
 .DS_Store
 .vscode/
